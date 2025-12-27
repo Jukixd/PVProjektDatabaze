@@ -1,21 +1,19 @@
 package boardgamecafe;
-import boardgamecafe.entity.Customer;
-import boardgamecafe.repository.CustomerRepository;
-import java.util.List;
+import boardgamecafe.entity.CafeTable;
+import boardgamecafe.entity.Game;
+import boardgamecafe.entity.GameGenre;
+import boardgamecafe.repository.CafeTableRepository;
+import boardgamecafe.repository.GameRepository;
 public class Main {
     public static void main(String[] args) {
-        CustomerRepository customerRepo = new CustomerRepository();
-        System.out.println("--- TEST: Vložení zákazníka ---");
-        Customer novyZakaznik = new Customer("Jan Novak", "jan.novak@email.cz", "123456789");
-        Integer newId = customerRepo.save(novyZakaznik);
-        System.out.println("Zákazník uložen s ID: " + newId);
-        System.out.println("\n--- TEST: Najít podle ID ---");
-        Customer nacteny = customerRepo.findById(newId);
-        System.out.println("Načteno z DB: " + nacteny);
-        System.out.println("\n--- TEST: Všechny zákazníky ---");
-        List<Customer> all = customerRepo.findAll();
-        for (Customer c : all) {
-            System.out.println(c);
-        }
+        GameRepository gameRepo = new GameRepository();
+        Game novaHra = new Game("Osadníci z Katanu", GameGenre.STRATEGIE, 50.0f, true);
+        gameRepo.save(novaHra);
+        System.out.println("Všechny hry v DB: " + gameRepo.findAll());
+
+
+        CafeTableRepository tableRepo = new CafeTableRepository();
+        tableRepo.save(new CafeTable(4, "U okna vlevo"));
+        System.out.println("Všechny stoly v DB: " + tableRepo.findAll());
     }
 }

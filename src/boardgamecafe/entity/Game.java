@@ -6,9 +6,7 @@ public class Game {
     private GameGenre genre;
     private float rentalPrice;
     private boolean isAvailable;
-
     public Game() {}
-
     public Game(String name, GameGenre genre, float rentalPrice, boolean isAvailable) {
         this.name = name;
         this.genre = genre;
