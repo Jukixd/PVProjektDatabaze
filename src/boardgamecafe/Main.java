@@ -1,19 +1,36 @@
 package boardgamecafe;
-import boardgamecafe.entity.CafeTable;
+
 import boardgamecafe.entity.Game;
 import boardgamecafe.entity.GameGenre;
-import boardgamecafe.repository.CafeTableRepository;
 import boardgamecafe.repository.GameRepository;
+import boardgamecafe.service.RentalService;
+
+import java.util.Arrays;
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
         GameRepository gameRepo = new GameRepository();
-        Game novaHra = new Game("Osadníci z Katanu", GameGenre.STRATEGIE, 50.0f, true);
-        gameRepo.save(novaHra);
-        System.out.println("Všechny hry v DB: " + gameRepo.findAll());
 
+        Game h1 = new Game("Dixit", GameGenre.PARTY, 100.0f, true);
+        Game h2 = new Game("Dungeons & Dragons", GameGenre.RPG, 200.0f, true);
 
-        CafeTableRepository tableRepo = new CafeTableRepository();
-        tableRepo.save(new CafeTable(4, "U okna vlevo"));
-        System.out.println("Všechny stoly v DB: " + tableRepo.findAll());
+        Integer idHry1 = gameRepo.save(h1);
+        Integer idHry2 = gameRepo.save(h2);
+
+        System.out.println("Připraveny hry ID: " + idHry1 + " a " + idHry2);
+
+        RentalService service = new RentalService();
+
+        System.out.println("--- Spouštím transakci výpůjčky ---");
+        List<Integer> hryKPujceni = Arrays.asList(idHry1, idHry2);
+
+        boolean vysledek = service.createRental(1, hryKPujceni);
+
+        if (vysledek) {
+            System.out.println("Vyslo to chlape");
+        } else {
+            System.out.println("neco selhalo.");
+        }
     }
 }
