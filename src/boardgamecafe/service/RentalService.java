@@ -77,4 +77,57 @@ public class RentalService {
             }
         }
     }
+
+    public void printAllRentals() {
+        System.out.println("--- SEZNAM VÝPŮJČEK ---");
+        String sqlRental = "SELECT r.id, r.rental_date, r.total_price, c.name " +
+                "FROM rental r " +
+                "JOIN customer c ON r.customer_id = c.id " +
+                "ORDER BY r.id DESC";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sqlRental)) {
+
+            boolean hasRentals = false;
+            while (rs.next()) {
+                hasRentals = true;
+                int rentalId = rs.getInt("id");
+                System.out.printf("Výpůjčka #%d | %s | %s | Celkem: %.2f Kč%n",
+                        rentalId,
+                        rs.getString("name"),
+                        rs.getTimestamp("rental_date"),
+                        rs.getFloat("total_price"));
+
+                printGamesForRental(conn, rentalId);
+                System.out.println("--------------------------------------------------");
+            }
+
+            if (!hasRentals) {
+                System.out.println("Žádné výpůjčky v databázi.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Chyba při výpisu výpůjček: " + e.getMessage());
+        }
+    }
+
+    private void printGamesForRental(Connection conn, int rentalId) throws SQLException {
+        String sqlItems = "SELECT g.name FROM rental_item ri " +
+                "JOIN game g ON ri.game_id = g.id " +
+                "WHERE ri.rental_id = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sqlItems)) {
+            stmt.setInt(1, rentalId);
+            ResultSet rs = stmt.executeQuery();
+            System.out.print("   Hry: ");
+            boolean first = true;
+            while (rs.next()) {
+                if (!first) System.out.print(", ");
+                System.out.print(rs.getString("name"));
+                first = false;
+            }
+            System.out.println();
+        }
+    }
 }

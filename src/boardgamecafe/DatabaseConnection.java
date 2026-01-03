@@ -21,7 +21,6 @@ public class DatabaseConnection {
             String pass = props.getProperty("db.password");
 
             this.connection = DriverManager.getConnection(url, user, pass);
-            System.out.println("Úspěšně připojeno k databázi!");
 
         } catch (IOException | SQLException e) {
             System.err.println("Chyba při připojování k DB: " + e.getMessage());

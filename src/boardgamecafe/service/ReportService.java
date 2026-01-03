@@ -36,12 +36,10 @@ public class ReportService {
             System.err.println("Chyba při vytváření pohledů: " + e.getMessage());
         }
     }
-
-    // Metoda pro tisk reportu
     public void printGeneralReport() {
-        System.out.println("\n==========================================");
+        System.out.println("\n-----------------------------------------");
         System.out.println("       BOARD GAME CAFE - DENNÍ REPORT       ");
-        System.out.println("==========================================");
+        System.out.println("-----------------------------------------");
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              Statement stmt = conn.createStatement()) {
@@ -73,6 +71,6 @@ public class ReportService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("==========================================\n");
+        System.out.println("----------------------------------------\n");
     }
 }
