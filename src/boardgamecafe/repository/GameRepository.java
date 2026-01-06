@@ -63,30 +63,27 @@ public class GameRepository implements CrudRepository<Game> {
     }
 
     @Override
-    public boolean update(Game game) {
-        String sql = "UPDATE game SET name=?, genre=?, rental_price=?, is_available=? WHERE id=?";
+    public boolean update(Game entity) {
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, game.getName());
-            stmt.setString(2, game.getGenre().name());
-            stmt.setFloat(3, game.getRentalPrice());
-            stmt.setBoolean(4, game.isAvailable());
-            stmt.setInt(5, game.getId());
-
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) { e.printStackTrace(); }
-        return false;
+             PreparedStatement stmt = conn.prepareStatement("UPDATE game SET rental_price = ? WHERE id = ?")) {
+            stmt.setFloat(1, entity.getRentalPrice());
+            stmt.setInt(2, entity.getId());
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
     @Override
     public boolean delete(int id) {
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM game WHERE id=?")) {
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM game WHERE id = ?")) {
             stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) { e.printStackTrace(); }
-        return false;
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.out.println(" Nelze smazat hru (zřejmě je součástí historie výpůjček).");
+            return false;
+        }
     }
 
     private Game mapRowToGame(ResultSet rs) throws SQLException {

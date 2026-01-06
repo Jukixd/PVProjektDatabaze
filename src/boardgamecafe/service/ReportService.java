@@ -12,28 +12,30 @@ public class ReportService {
     public void createViews() {
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              Statement stmt = conn.createStatement()) {
-
-
             String sqlView1 = "CREATE OR REPLACE VIEW view_customer_stats AS " +
-                    "SELECT c.name, COUNT(r.id) as rental_count, SUM(r.total_price) as total_spent " +
+                    "SELECT c.name, " +
+                    "COUNT(DISTINCT r.id) as rental_count, " +
+                    "COUNT(ri.id) as games_count, " +
+                    "COALESCE(SUM(r.total_price), 0) as total_spent " +
                     "FROM customer c " +
-                    "JOIN rental r ON c.id = r.customer_id " +
+                    "LEFT JOIN rental r ON c.id = r.customer_id " +
+                    "LEFT JOIN rental_item ri ON r.id = ri.rental_id " +
                     "GROUP BY c.id, c.name " +
                     "ORDER BY total_spent DESC";
             stmt.executeUpdate(sqlView1);
 
             String sqlView2 = "CREATE OR REPLACE VIEW view_genre_stats AS " +
-                    "SELECT g.genre, COUNT(ri.id) as rental_count, AVG(g.rental_price) as avg_price " +
+                    "SELECT g.genre, COUNT(ri.id) as rental_count, COALESCE(AVG(g.rental_price), 0) as avg_price " +
                     "FROM game g " +
-                    "JOIN rental_item ri ON g.id = ri.game_id " +
+                    "LEFT JOIN rental_item ri ON g.id = ri.game_id " +
                     "GROUP BY g.genre " +
                     "ORDER BY rental_count DESC";
             stmt.executeUpdate(sqlView2);
 
-            System.out.println("Pohledy (Views) byly v databázi aktualizovány.");
+            System.out.println("[Systém] SQL Views (3-table join) aktualizovány.");
 
         } catch (Exception e) {
-            System.err.println("Chyba při vytváření pohledů: " + e.getMessage());
+            System.err.println("Chyba Views: " + e.getMessage());
         }
     }
     public void printGeneralReport() {

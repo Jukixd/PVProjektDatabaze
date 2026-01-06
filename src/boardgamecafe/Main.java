@@ -1,133 +1,248 @@
 package boardgamecafe;
 
-import boardgamecafe.entity.Customer;
-import boardgamecafe.entity.Game;
-import boardgamecafe.repository.CustomerRepository;
-import boardgamecafe.repository.GameRepository;
-import boardgamecafe.service.DataImporter;
-import boardgamecafe.service.RentalService;
-import boardgamecafe.service.ReportService;
+import boardgamecafe.entity.*;
+import boardgamecafe.repository.*;
+import boardgamecafe.service.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
-
     private static final CustomerRepository customerRepo = new CustomerRepository();
     private static final GameRepository gameRepo = new GameRepository();
+    private static final CafeTableRepository tableRepo = new CafeTableRepository();
     private static final RentalService rentalService = new RentalService();
     private static final ReportService reportService = new ReportService();
     private static final DataImporter importer = new DataImporter();
 
     public static void main(String[] args) {
-        System.out.println("Vítejte v systému BOARD GAME CAFE!");
-        reportService.createViews();
+        System.out.println("==========================================");
+        System.out.println("   > BOARD GAME CAFE MANAGER <");
+        System.out.println("==========================================");
+        initializeSystem();
 
         boolean running = true;
         while (running) {
-            printMenu();
+            printMainMenu();
             String choice = scanner.nextLine();
 
             switch (choice) {
-                case "1" -> listAllData();
-                case "2" -> createNewRental();
-                case "3" -> showReports();
-                case "4" -> importData();
+                case "1" -> {
+                    showDataSubMenu();
+                    waitForEnter();
+                }
+                case "2" -> {
+                    createRentalProcess();
+                    waitForEnter();
+                }
+                case "3" -> {
+                    reportService.printGeneralReport();
+                    waitForEnter();
+                }
+                case "4" -> {
+                    runImport();
+                    waitForEnter();
+                }
                 case "5" -> {
-                    System.out.println("Ukončuji aplikaci. Nashledanou!");
+                    deleteGame();
+                    waitForEnter();
+                }
+                case "6" -> {
+                    updateGamePrice();
+                    waitForEnter();
+                }
+                case "7" -> {
+                    System.out.println("Ukončuji systém... Na shledanou!");
                     running = false;
                 }
-                default -> System.out.println("Neplatná volba, zkuste to znovu.");
+                default -> {
+                    System.out.println("Neplatná volba.");
+                    waitForEnter();
+                }
             }
-            System.out.println("\nStiskněte Enter pro pokračování...");
-            scanner.nextLine();
         }
     }
-    private static void printMenu() {
-        System.out.println("\n--- HLAVNÍ MENU ---");
-        System.out.println("1. Zobrazit Zákazníky a Hry");
-        System.out.println("2. Nová výpůjčka (Transakce)");
-        System.out.println("3. Generovat denní report");
-        System.out.println("4. Importovat data z CSV");
-        System.out.println("5. Konec");
+
+    private static void initializeSystem() {
+        if (tableRepo.findAll().isEmpty()) {
+            System.out.println("[INIT] Generuji stoly...");
+            tableRepo.save(new CafeTable(4, "U okna (Výhled na náměstí)"));
+            tableRepo.save(new CafeTable(2, "Romantický box"));
+            tableRepo.save(new CafeTable(6, "Velký stůl pro D&D"));
+        }
+        reportService.createViews();
+    }
+
+    private static void printMainMenu() {
+        System.out.println("\n\n");
+        System.out.println("--- HLAVNÍ MENU ---");
+        System.out.println("1.  Zobrazit data (Zákazníci, Hry...)");
+        System.out.println("2.  Nová výpůjčka");
+        System.out.println("3.  Report tržeb");
+        System.out.println("4.  Import dat (CSV)");
+        System.out.println("--- Správa her (CRUD) ---");
+        System.out.println("5.  Smazat hru");
+        System.out.println("6. Upravit cenu hry");
+        System.out.println("-------------------------");
+        System.out.println("7.  Konec");
         System.out.print("Vaše volba: ");
     }
 
-    private static void listAllData() {
-        System.out.println("\n--- SEZNAM ZÁKAZNÍKŮ ---");
-        List<Customer> customers = customerRepo.findAll();
-        if (customers.isEmpty()) System.out.println("Žádní zákazníci.");
-        else customers.forEach(System.out::println);
-
-        System.out.println("\n--- SEZNAM HER ---");
-        List<Game> games = gameRepo.findAll();
-        if (games.isEmpty()) System.out.println("Žádné hry.");
-        else games.forEach(System.out::println);
-
-        System.out.println();
-        rentalService.printAllRentals();
+    private static void waitForEnter() {
+        System.out.println("\n👉 Stiskněte [ENTER] pro návrat do menu...");
+        scanner.nextLine();
     }
 
-    private static void createNewRental() {
-        System.out.println("\n--- NOVÁ VÝPŮJČKA ---");
-        try {
-            // 1. Výběr zákazníka
-            System.out.print("Zadejte ID zákazníka: ");
-            int customerId = Integer.parseInt(scanner.nextLine());
+    private static void showDataSubMenu() {
+        System.out.println("\n--- CO CHCETE ZOBRAZIT? ---");
+        System.out.println("a) Seznam zákazníků");
+        System.out.println("b) Katalog her");
+        System.out.println("c) Stoly");
+        System.out.println("d) Historie výpůjček");
+        System.out.println("e) VŠE NAJEDNOU");
+        System.out.print("Vyberte (a-e): ");
 
-            if (customerRepo.findById(customerId) == null) {
-                System.out.println("CHYBA: Zákazník s ID " + customerId + " neexistuje!");
-                return;
+        String subChoice = scanner.nextLine().toLowerCase();
+
+        switch (subChoice) {
+            case "a" -> {
+                System.out.println("\n--- ZÁKAZNÍCI ---");
+                List<Customer> list = customerRepo.findAll();
+                if (list.isEmpty()) System.out.println("(Žádná data)");
+                else list.forEach(System.out::println);
             }
-
-            // 2. Výběr her
-            List<Integer> gameIds = new ArrayList<>();
-            while (true) {
-                System.out.print("Zadejte ID hry (nebo 'ok' pro dokončení): ");
-                String input = scanner.nextLine();
-
-                if (input.equalsIgnoreCase("ok")) break;
-
-                try {
-                    int gameId = Integer.parseInt(input);
-                    if (gameRepo.findById(gameId) != null) {
-                        gameIds.add(gameId);
-                        System.out.println("Hra přidána do košíku.");
-                    } else {
-                        System.out.println("CHYBA: Hra s ID " + gameId + " neexistuje.");
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Neplatné číslo.");
-                }
+            case "b" -> {
+                System.out.println("\n--- HRY ---");
+                List<Game> list = gameRepo.findAll();
+                if (list.isEmpty()) System.out.println("(Žádná data)");
+                else list.forEach(System.out::println);
             }
-
-            // 3. Provedení transakce
-            if (gameIds.isEmpty()) {
-                System.out.println("Nebyly vybrány žádné hry. Výpůjčka zrušena.");
-            } else {
-                boolean success = rentalService.createRental(customerId, gameIds);
-                if (success) {
-                    System.out.println("Výpůjčka byla úspěšně uložena!");
-                } else {
-                    System.out.println("Chyba při ukládání výpůjčky.");
-                }
+            case "c" -> {
+                System.out.println("\n--- STOLY ---");
+                List<CafeTable> list = tableRepo.findAll();
+                if (list.isEmpty()) System.out.println("(Žádná data)");
+                else list.forEach(System.out::println);
             }
-
-        } catch (NumberFormatException e) {
-            System.out.println("CHYBA: Musíte zadat číslo!");
+            case "d" -> {
+                System.out.println("\n--- VÝPŮJČKY ---");
+                rentalService.printAllRentals();
+            }
+            case "e" -> {
+                System.out.println("\n--- KOMPLETNÍ VÝPIS DAT ---");
+                customerRepo.findAll().forEach(System.out::println);
+                System.out.println("---------------------------");
+                gameRepo.findAll().forEach(System.out::println);
+                System.out.println("---------------------------");
+                tableRepo.findAll().forEach(System.out::println);
+                System.out.println("---------------------------");
+                rentalService.printAllRentals();
+            }
+            default -> System.out.println(" Neznámá volba, vracím se do menu.");
         }
     }
 
-    private static void showReports() {
-        reportService.printGeneralReport();
-    }
+    private static void createRentalProcess() {
+        System.out.println("\n--- NOVÁ VÝPŮJČKA ---");
+        try {
+            System.out.print("ID Zákazníka: ");
+            int cId = Integer.parseInt(scanner.nextLine());
+            Customer customer = customerRepo.findById(cId);
 
-    private static void importData() {
-        System.out.println("Importuji data ze složky /data ...");
+            if (customer == null) {
+                System.out.println("Zákazník neexistuje!");
+                return;
+            }
+            System.out.println("   -> Vybrán: " + customer.getName());
+
+            System.out.print("ID Stolu: ");
+            int tId = Integer.parseInt(scanner.nextLine());
+            boolean tableExists = false;
+            for (CafeTable t : tableRepo.findAll()) {
+                if (t.getId() == tId) {
+                    System.out.println("   -> Stůl: " + t.getLocationDescription());
+                    tableExists = true;
+                    break;
+                }
+            }
+            if (!tableExists) {
+                System.out.println("Stůl neexistuje!");
+                return;
+            }
+
+            List<Integer> gameIds = new ArrayList<>();
+            while (true) {
+                System.out.print("ID Hry (nebo 'ok'): ");
+                String input = scanner.nextLine();
+                if (input.equalsIgnoreCase("ok")) break;
+
+                try {
+                    int gId = Integer.parseInt(input);
+                    Game game = gameRepo.findById(gId);
+                    if (game != null) {
+                        System.out.println("   + " + game.getName() + " (" + game.getRentalPrice() + " Kč)");
+                        gameIds.add(gId);
+                    } else {
+                        System.out.println("   ! Hra neexistuje.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("   ! Zadejte číslo.");
+                }
+            }
+
+            if (!gameIds.isEmpty()) {
+                boolean success = rentalService.createRental(cId, gameIds);
+                if (success) System.out.println("Výpůjčka uložena.");
+                else System.out.println("Chyba ukládání.");
+            } else {
+                System.out.println("Transakce zrušena (žádné hry).");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Chyba vstupu: Musíte zadat číslo.");
+        }
+    }
+    private static void runImport() {
+        System.out.println("\n--- IMPORT DAT ---");
         importer.importCustomers("data/customers.csv");
         importer.importGames("data/games.csv");
         System.out.println("Hotovo.");
+    }
+    private static void deleteGame() {
+        System.out.println("\n--- SMAZAT HRU ---");
+        System.out.print("ID hry ke smazání: ");
+        try {
+            int id = Integer.parseInt(scanner.nextLine());
+            if (gameRepo.delete(id)) {
+                System.out.println("Hra smazána.");
+            } else {
+                System.out.println("Nelze smazat (hra neexistuje nebo je půjčená).");
+            }
+        } catch (Exception e) {
+            System.out.println("Chyba: " + e.getMessage());
+        }
+    }
+    private static void updateGamePrice() {
+        System.out.println("\n--- UPRAVIT CENU ---");
+        System.out.print("ID hry: ");
+        try {
+            int id = Integer.parseInt(scanner.nextLine());
+            Game game = gameRepo.findById(id);
+            if (game != null) {
+                System.out.println("Hra: " + game.getName() + " | Cena: " + game.getRentalPrice());
+                System.out.print("Nová cena: ");
+                float price = Float.parseFloat(scanner.nextLine());
+                game.setRentalPrice(price);
+
+                if (gameRepo.update(game)) {
+                    System.out.println("Cena změněna.");
+                } else {
+                    System.out.println("Chyba DB.");
+                }
+            } else {
+                System.out.println("Hra nenalezena.");
+            }
+        } catch (Exception e) {
+            System.out.println("Chyba vstupu.");
+        }
     }
 }

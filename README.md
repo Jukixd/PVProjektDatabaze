@@ -12,9 +12,9 @@ Aplikace vyžaduje pro svůj běh následující software:
 ## Instalace a spuštění aplikace
 
 ### 1. Vytvoření a nastavení databáze
-1.  Připojte se k databázovému serveru (např. přes MySQL Workbench nebo IntelliJ).
+1.  Připojte se k databázovému serveru
 2.  Otevřete a spusťte SQL skript umístěný v:
-    `sql/schema.sql`
+    `script.sql`
 3.  Tento skript automaticky:
     * Vytvoří databázi `board_game_cafe`.
     * Vytvoří uživatele `bg_user` s heslem `bg_pass`.

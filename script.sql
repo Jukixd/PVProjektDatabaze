@@ -1,8 +1,6 @@
--- 1. Vytvoření databáze
 CREATE DATABASE IF NOT EXISTS board_game_cafe;
 USE board_game_cafe;
 
--- 2. Smazání starých tabulek a pohledů (pro čistý start)
 DROP VIEW IF EXISTS view_customer_stats;
 DROP VIEW IF EXISTS view_genre_stats;
 DROP TABLE IF EXISTS rental_item;
@@ -11,7 +9,6 @@ DROP TABLE IF EXISTS cafe_table;
 DROP TABLE IF EXISTS game;
 DROP TABLE IF EXISTS customer;
 
--- 3. Vytvoření Tabulek
 CREATE TABLE customer (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
