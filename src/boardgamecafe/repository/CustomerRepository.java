@@ -11,7 +11,6 @@ public class CustomerRepository implements CrudRepository<Customer> {
 
     @Override
     public Integer save(Customer customer) {
-        // SQL dotaz s otazníky (prevence proti hacknutí SQL injection)
         String sql = "INSERT INTO customer (name, email, phone) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -24,7 +23,6 @@ public class CustomerRepository implements CrudRepository<Customer> {
             int affectedRows = stmt.executeUpdate();
 
             if (affectedRows > 0) {
-                // Získání vygenerovaného ID
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         return generatedKeys.getInt(1);
@@ -34,7 +32,7 @@ public class CustomerRepository implements CrudRepository<Customer> {
         } catch (SQLException e) {
             System.err.println("Chyba při ukládání zákazníka: " + e.getMessage());
         }
-        return null; // Chyba
+        return null;
     }
 
     @Override
@@ -48,7 +46,6 @@ public class CustomerRepository implements CrudRepository<Customer> {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                // Mapování z tabulky do objektu
                 return new Customer(
                         rs.getInt("id"),
                         rs.getString("name"),
