@@ -1,11 +1,13 @@
 package boardgamecafe.service;
 
+
 import boardgamecafe.entity.Customer;
 import boardgamecafe.entity.Game;
 import boardgamecafe.entity.GameGenre;
+import boardgamecafe.entity.CafeTable;
 import boardgamecafe.repository.CustomerRepository;
 import boardgamecafe.repository.GameRepository;
-
+import boardgamecafe.repository.CafeTableRepository;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -39,8 +41,32 @@ public class DataImporter {
             System.err.println("Chyba při čtení souboru: " + e.getMessage());
         }
     }
+    private final CafeTableRepository tableRepo = new CafeTableRepository();
 
-    // Import her
+    public void importTables(String filePath) {
+        System.out.println("Načítám stoly z: " + filePath);
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            int count = 0;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(";");
+                if (parts.length >= 2) {
+                    int capacity = Integer.parseInt(parts[0].trim());
+                    String description = parts[1].trim();
+
+                    CafeTable table = new CafeTable(capacity, description);
+                    tableRepo.save(table);
+                    count++;
+                }
+            }
+            System.out.println("Načteno " + count + " stolů.");
+        } catch (IOException e) {
+            System.out.println("Chyba při čtení souboru stolů: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Chyba formátu čísla v CSV stolů.");
+        }
+    }
+
     public void importGames(String filePath) {
         GameRepository repo = new GameRepository();
         int count = 0;
@@ -49,13 +75,11 @@ public class DataImporter {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = br.readLine()) != null) {
-                // Rozdělení: "Název,Žánr,Cena"
                 String[] parts = line.split(",");
 
                 if (parts.length >= 3) {
                     try {
                         String name = parts[0].trim();
-                        // Převedeme text (např. "RPG") na Enum
                         GameGenre genre = GameGenre.valueOf(parts[1].trim().toUpperCase());
                         float price = Float.parseFloat(parts[2].trim());
 

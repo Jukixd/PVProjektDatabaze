@@ -14,7 +14,7 @@ public class DatabaseConnection {
     private DatabaseConnection() {
         try {
             Properties props = new Properties();
-            props.load(new FileInputStream("src/config.properties"));
+            props.load(new FileInputStream("config.properties"));
 
             String url = props.getProperty("db.url");
             String user = props.getProperty("db.user");

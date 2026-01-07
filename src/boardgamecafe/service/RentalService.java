@@ -58,7 +58,7 @@ public class RentalService {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("Chyba transakce! Vracím změny zpět (Rollback). " + e.getMessage());
+            System.err.println("Chyba transakce! Vracím změny zpět. " + e.getMessage());
             if (conn != null) {
                 try {
                     conn.rollback();

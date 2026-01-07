@@ -19,7 +19,17 @@ public class Main {
         System.out.println("==========================================");
         System.out.println("   > BOARD GAME CAFE MANAGER <");
         System.out.println("==========================================");
-        initializeSystem();
+
+        try {
+            initializeSystem();
+        } catch (Exception e) {
+            System.out.println("\n---KRITICKÁ CHYBA SPUŠTĚNÍ---");
+            System.out.println("Nepodařilo se připojit k databázi.");
+            System.out.println("Zkontrolujte soubor 'config.properties' (heslo, uživatel, url).");
+            System.out.println("\nAplikace bude ukončena.");
+            return;
+        }
+
 
         boolean running = true;
         while (running) {
@@ -64,15 +74,8 @@ public class Main {
     }
 
     private static void initializeSystem() {
-        if (tableRepo.findAll().isEmpty()) {
-            System.out.println("[INIT] Generuji stoly...");
-            tableRepo.save(new CafeTable(4, "U okna (Výhled na náměstí)"));
-            tableRepo.save(new CafeTable(2, "Romantický box"));
-            tableRepo.save(new CafeTable(6, "Velký stůl pro D&D"));
-        }
         reportService.createViews();
     }
-
     private static void printMainMenu() {
         System.out.println("\n\n");
         System.out.println("--- HLAVNÍ MENU ---");
@@ -80,16 +83,14 @@ public class Main {
         System.out.println("2.  Nová výpůjčka");
         System.out.println("3.  Report tržeb");
         System.out.println("4.  Import dat (CSV)");
-        System.out.println("--- Správa her (CRUD) ---");
         System.out.println("5.  Smazat hru");
         System.out.println("6. Upravit cenu hry");
-        System.out.println("-------------------------");
         System.out.println("7.  Konec");
         System.out.print("Vaše volba: ");
     }
 
     private static void waitForEnter() {
-        System.out.println("\n👉 Stiskněte [ENTER] pro návrat do menu...");
+        System.out.println("\nStiskněte [ENTER] pro návrat do menu...");
         scanner.nextLine();
     }
 
@@ -185,27 +186,28 @@ public class Main {
                         System.out.println("   ! Hra neexistuje.");
                     }
                 } catch (NumberFormatException e) {
-                    System.out.println("   ! Zadejte číslo.");
+                    System.out.println("   ! Zadejte číslo");
                 }
             }
 
             if (!gameIds.isEmpty()) {
                 boolean success = rentalService.createRental(cId, gameIds);
-                if (success) System.out.println("Výpůjčka uložena.");
-                else System.out.println("Chyba ukládání.");
+                if (success) System.out.println("Výpůjčka uložena");
+                else System.out.println("Chyba ukládání");
             } else {
-                System.out.println("Transakce zrušena (žádné hry).");
+                System.out.println("Neyvbral/a jste žádné hry.");
             }
 
         } catch (NumberFormatException e) {
-            System.out.println("Chyba vstupu: Musíte zadat číslo.");
+            System.out.println("Zadejete číslo!");
         }
     }
     private static void runImport() {
         System.out.println("\n--- IMPORT DAT ---");
         importer.importCustomers("data/customers.csv");
         importer.importGames("data/games.csv");
-        System.out.println("Hotovo.");
+        importer.importTables("data/tables.csv");
+        System.out.println("Hotovo");
     }
     private static void deleteGame() {
         System.out.println("\n--- SMAZAT HRU ---");

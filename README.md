@@ -23,32 +23,46 @@ Aplikace vyžaduje pro svůj běh následující software:
 ### 2. Nastavení konfiguračního souboru
 1.  Přejděte do složky `src`.
 2.  Otevřete soubor `config.properties`.
-3.  Ujistěte se, že údaje odpovídají (pokud jste použili SQL skript výše, nemusíte nic měnit):
+3.  Ujistěte se, že údaje odpovídají:
     ```properties
     db.url=jdbc:mysql://localhost:3306/board_game_cafe?allowPublicKeyRetrieval=true&useSSL=false
-    db.user=bg_user
-    db.password=bg_pass
+    db.user= váš username
+    db.password= váš password
     ```
 
 ### 3. Spuštění
-Spusťte hlavní třídu aplikace: `src/boardgamecafe/Main.java`.
+Otevřete příkazový řádek (nebo terminál), přejděte do složky, kde je umístěn výsledný .jar soubor, a spusťte aplikaci příkazem:
+
+!! Nepřesunujte BGcafe.jar z jeho aktulaní polohy !!
+
+```cmd
+    cd C:\umístění\složky\souboru\BGcafe.jar
+    
+    java -jar BGcafe.jar
+```
 
 ---
 
 ### Importování CSV souborů
 
-Všechny CSV soubory, které chcete importovat, musíte nejdříve umístit do složky **`data`** v kořenovém adresáři projektu. Import jinak neprojde.
+Pro import dat je nutné mít ve složce data připravené CSV soubory.
 
-Dále je důležité dodržovat určitou strukturu dat v souboru. Níže je specifikovaná struktura CSV souborů pro import do tabulek `customer` a `game`, kde XXX znázorňuje vaše vlastní data:
+Důležité: Aplikace je naprogramována tak, aby automaticky hledala pouze soubory s těmito přesnými názvy:
 
-**customers.csv**
+* customers.csv
+* games.csv
+* tables.csv
 
+Pokud soubory pojmenujete jinak, import neproběhne. Dbejte také na správnou strukturu a oddělovače:
+
+**games.csv**
 * email musí být unikátní
 * Pořadí: Jméno, Email, Telefon
 
 Fragment kódu
 ```
 Petr Novotny,petr@test.cz,777111222
+Jan Novak,jan@novak.cz,608123456
 ```
 **games.csv**
 
@@ -59,4 +73,19 @@ Petr Novotny,petr@test.cz,777111222
 Fragment kódu
 ```
 Carcassonne,STRATEGIE,80.0
+Krycí jména,PARTY,45.0
 ```
+**tables.csv**
+
+* Slouží k definici kapacity a popisu stolů.
+* Pořadí: Kapacita; Popis
+
+Fragment kódu
+```
+4;U okna (Výhled na náměstí)
+2;Romantický box
+6;Velký stůl pro D&D
+```
+---
+### Testování Aplikace
+Testovací scénáře se nachazí ve kořenovém adresáři projektu (Testovací scénáře.pdf) a dokumentace ve složce Doc (Doc\Dokumentace.pdf)
