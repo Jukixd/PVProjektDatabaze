@@ -1,3 +1,11 @@
+-- ==========================================================
+-- PROJEKT: Board Game Cafe Manager
+-- AUTOR:   Tomáš Majer
+-- EMAIL:   tomasxgolds@gmail.com
+-- DATUM:   8.01.2026
+-- ==========================================================
+
+-- 1. Vytvoření databáze a uživatele
 CREATE DATABASE IF NOT EXISTS board_game_cafe;
 USE board_game_cafe;
 
@@ -9,6 +17,8 @@ DROP TABLE IF EXISTS cafe_table;
 DROP TABLE IF EXISTS game;
 DROP TABLE IF EXISTS customer;
 
+
+-- 2. DDL - Vytvoření tabulek
 CREATE TABLE customer (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -33,10 +43,11 @@ CREATE TABLE cafe_table (
 CREATE TABLE rental (
     id INT AUTO_INCREMENT PRIMARY KEY,
     customer_id INT NOT NULL,
+    table_id INT NOT NULL,
     rental_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    total_price FLOAT,
-    status VARCHAR(20) DEFAULT 'ACTIVE',
-    FOREIGN KEY (customer_id) REFERENCES customer(id)
+    total_price FLOAT NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customer(id),
+    FOREIGN KEY (table_id) REFERENCES cafe_table(id) -- <--- VAZBA
 );
 
 CREATE TABLE rental_item (
@@ -47,6 +58,8 @@ CREATE TABLE rental_item (
     FOREIGN KEY (game_id) REFERENCES game(id)
 );
 
+
+-- 3. Views (Pohledy)
 CREATE VIEW view_customer_stats AS
 SELECT c.name, COUNT(r.id) as rental_count, SUM(r.total_price) as total_spent
 FROM customer c

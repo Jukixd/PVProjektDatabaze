@@ -44,7 +44,7 @@ public class DataImporter {
     private final CafeTableRepository tableRepo = new CafeTableRepository();
 
     public void importTables(String filePath) {
-        System.out.println("Načítám stoly z: " + filePath);
+        System.out.println("--- Začínám import stolů ---");
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             int count = 0;
@@ -59,7 +59,7 @@ public class DataImporter {
                     count++;
                 }
             }
-            System.out.println("Načteno " + count + " stolů.");
+            System.out.println("Import dokončen. Úspěšně vloženo: " + count);
         } catch (IOException e) {
             System.out.println("Chyba při čtení souboru stolů: " + e.getMessage());
         } catch (NumberFormatException e) {

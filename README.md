@@ -31,7 +31,7 @@ Aplikace vyžaduje pro svůj běh následující software:
     ```
 
 ### 3. Spuštění
-Otevřete příkazový řádek (nebo terminál), přejděte do složky, kde je umístěn výsledný .jar soubor, a spusťte aplikaci příkazem:
+Otevřere terminál ve c kořenovém adresáři a spusťte aplikaci příkazem:
 
 !! Nepřesunujte BGcafe.jar z jeho aktulaní polohy !!
 
@@ -88,4 +88,4 @@ Fragment kódu
 ```
 ---
 ### Testování Aplikace
-Testovací scénáře se nachazí ve kořenovém adresáři projektu (Testovací scénáře.pdf) a dokumentace ve složce Doc (Doc\Dokumentace.pdf)
+Testovací scénáře a dokumentace se nachazí ve složce /Doc 
